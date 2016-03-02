@@ -259,6 +259,13 @@ class Kohana_MangoDB {
 			'condition'       => $condition
 		));
 	}
+	
+	public function aggregate($collection_name, array $a)
+	{
+		return $this->_call('aggregate', array(
+			'collection_name' => $collection_name,
+		), $a);
+	}
 
 	public function update($collection_name, array $criteria, array $newObj, $options = array())
 	{
@@ -412,6 +419,9 @@ class Kohana_MangoDB {
 			break;
 			case 'group':
 				$r = $c->group($keys,$initial,$reduce,$condition);
+			break;
+			case 'aggregate':
+				$r = $c->aggregate($values);
 			break;
 			case 'update':
 				$r = $c->update($criteria, $values, $options);
