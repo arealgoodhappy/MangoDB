@@ -260,11 +260,18 @@ class Kohana_MangoDB {
 		));
 	}
 	
-	public function aggregate($collection_name, array $a)
+	public function aggregate($collection_name)
 	{
+        // support both type of arguments as specified on
+        // http://php.net/manual/en/mongocollection.aggregate.php
+
+        $arguments = func_get_args();
+        $collection_name = array_shift($arguments);
+
 		return $this->_call('aggregate', array(
 			'collection_name' => $collection_name,
-		), $a);
+            'arguments' => $arguments
+		));
 	}
 
 	public function update($collection_name, array $criteria, array $newObj, $options = array())
@@ -359,11 +366,11 @@ class Kohana_MangoDB {
 	 *
 	 * This allows for easy benchmarking
 	 */
-	protected function _call($command, array $arguments = array(), array $values = NULL)
+	protected function _call($command, array $args = array(), array $values = NULL)
 	{
 		$this->_connected OR $this->connect();
 
-		extract($arguments);
+		extract($args);
 
 		if ( ! empty($this->_config['profiling']))
 		{
@@ -421,7 +428,7 @@ class Kohana_MangoDB {
 				$r = $c->group($keys,$initial,$reduce,$condition);
 			break;
 			case 'aggregate':
-				$r = $c->aggregate($values);
+				$r = call_user_func_array(array($c, 'aggregate'), $arguments);
 			break;
 			case 'update':
 				$r = $c->update($criteria, $values, $options);
